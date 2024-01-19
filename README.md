@@ -1,2 +1,170 @@
-# To-do-list
-https://codepen.io/AthiraMohq/pen/PoLWyyG
+# Alarm clock 
+
+
+
+
+Code for Activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+ 
+    <TimePicker
+        android:id="@+id/timePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+ 
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        android:checked="false"
+        android:onClick="OnToggleClicked" />
+ 
+</LinearLayout>
+Now click on Design and your application will look as given below.
+design-11
+
+So now the designing part is completed.
+Changes in Manifest for the Android Application:
+Click on app -> manifests -> AndroidManifest.xml
+manifest-11-a
+
+Now change the activity tag to receiver tag in the AndroidManifest.xml file as shown below
+manifest-11
+
+Code for AndroidManifest.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.exno11" >
+ 
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+        <activity android:name=".MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+ 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".AlarmReceiver" >
+        </receiver>
+    </application>
+ 
+</manifest>
+So now the changes are done in the Manifest.
+Java Coding for the Android Application:
+Java Coding for Main Activity:
+Click on app -> java -> com.example.exno11 -> MainActivity.
+MainActivity
+
+Then delete the code which is there and type the code as given below.
+Code for MainActivity.java:
+
+
+package com.example.exno11;
+ 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.TimePicker;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+ 
+import java.util.Calendar;
+ 
+public class MainActivity extends AppCompatActivity
+{
+    TimePicker alarmTimePicker;
+    PendingIntent pendingIntent;
+    AlarmManager alarmManager;
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        alarmTimePicker = (TimePicker) findViewById(R.id.timePicker);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+    }
+    public void OnToggleClicked(View view)
+    {
+        long time;
+        if (((ToggleButton) view).isChecked())
+        {
+            Toast.makeText(MainActivity.this, "ALARM ON", Toast.LENGTH_SHORT).show();
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, alarmTimePicker.getCurrentHour());
+            calendar.set(Calendar.MINUTE, alarmTimePicker.getCurrentMinute());
+            Intent intent = new Intent(this, AlarmReceiver.class);
+            pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+ 
+            time=(calendar.getTimeInMillis()-(calendar.getTimeInMillis()%60000));
+            if(System.currentTimeMillis()>time)
+            {
+                if (calendar.AM_PM == 0)
+                    time = time + (1000*60*60*12);
+                else
+                    time = time + (1000*60*60*24);
+            }
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, time, 10000, pendingIntent);
+        }
+        else
+        {
+            alarmManager.cancel(pendingIntent);
+            Toast.makeText(MainActivity.this, "ALARM OFF", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
+So now the Coding part of Main Activity is completed.
+Java Coding for Alarm Receiver:
+Click on app -> java -> com.example.exno11 -> AlarmReceiver.
+AlarmActivity-java
+
+Then delete the code which is there and type the code as given below.
+Code for AlarmReceiver.java:
+
+
+package com.example.exno11;
+ 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.widget.Toast;
+ 
+public class AlarmReceiver extends BroadcastReceiver 
+{
+    @Override
+    public void onReceive(Context context, Intent intent) 
+    {
+        Toast.makeText(context, "Alarm! Wake up! Wake up!", Toast.LENGTH_LONG).show();
+        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (alarmUri == null)
+        {
+            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
+        Ringtone ringtone = RingtoneManager.getRingtone(context, alarmUri);
+        ringtone.play();
+    }
+}
+ output 
+ 
+  
+
+
+
